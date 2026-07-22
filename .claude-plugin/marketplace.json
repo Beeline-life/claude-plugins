@@ -1,0 +1,16 @@
+{
+  "name": "beeline",
+  "owner": {
+    "name": "Beeline"
+  },
+  "description": "Beeline plugins for Claude — connect Claude to your Beeline workspace to build beelines, manage group structure, and pull reporting & competency insights, all scoped to your organization via OAuth login.",
+  "plugins": [
+    {
+      "name": "beeline-workspace",
+      "source": "./plugins/beeline-workspace",
+      "description": "Build and edit beelines, manage your org's group structure, and pull reporting/competency insights from your Beeline workspace — scoped to your organization through a real OAuth login. Admin/manager accounts only.",
+      "category": "productivity",
+      "keywords": ["lms", "training", "workforce", "beeline", "mcp"]
+    }
+  ]
+}

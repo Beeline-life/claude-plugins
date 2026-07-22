@@ -1,0 +1,10 @@
+{
+  "name": "beeline-workspace",
+  "version": "1.2.0",
+  "description": "Build and edit beelines, manage your org's group structure, and pull reporting/competency insights from your Beeline workspace — all scoped to your organization through a real OAuth login. No JWT-pasting, no separate setup per user.",
+  "author": {
+    "name": "Beeline"
+  },
+  "homepage": "https://www.beeline.life/external-api-docs/workspace-mcp",
+  "keywords": ["lms", "training", "workforce", "beeline", "mcp"]
+}

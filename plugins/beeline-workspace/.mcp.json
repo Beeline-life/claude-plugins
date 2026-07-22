@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "beeline-workspace": {
+      "type": "http",
+      "url": "https://mcp.beeline.life/mcp"
+    }
+  }
+}
