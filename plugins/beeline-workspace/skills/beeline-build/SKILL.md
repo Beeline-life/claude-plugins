@@ -29,6 +29,58 @@ Never guess a beeline_id or cell_id. Always resolve them first:
 
 Every content-edit call takes an optional `expected_version` (the cell's `content_version` from your last read) — pass it when you want a stale-edit conflict to raise an error instead of silently clobbering someone else's concurrent change.
 
+## The block schema — write valid blocks first time
+
+A cell's content is a **list of block objects**. Every block is `{"type": "...", "children": [...]}` — you never set `id`, it is assigned for you. Text lives in **leaf** objects inside `children`: `{"text": "..."}`. Formatting is boolean keys on a leaf — `bold`, `italic`, `underline`, `strikethrough`, `highlight`, `code` (inline) — and one block can mix plain and marked leaves, so a sentence with one bold phrase is three leaves. Don't invent block types or fields you haven't seen the schema for — an unknown type or a payload-losing shape is rejected on write.
+
+**Common block types (use these exact `type` strings):**
+
+| Type string | Block |
+|---|---|
+| `p` | paragraph |
+| `h1` `h2` `h3` | headings |
+| `ul` `ol` | bullet / numbered list — children are `list-item`, each wrapping a `list-item-text` leaf holder |
+| `quote` | block quote |
+| `code` | code block |
+| `divider` | horizontal rule (children `[{"text": ""}]`) |
+| `callout` | highlighted box — **see the rule below** |
+| `image` | image (needs a valid asset reference — usually better generated) |
+
+**Callout — the one that bites.** A callout MUST carry renderable iconography, supplied one of two ways:
+
+- `"variant"` — one of exactly **`note`, `tip`, `warning`, `danger`, `mistake`**. These are the *only* valid variants. Do **not** use `info` or `success` (the conventional names elsewhere, e.g. Notion) — Slate rejects them.
+- or `"icon"` — any emoji, e.g. `"💡"`, when you want a look outside the five severity variants.
+
+A callout with neither a valid `variant` nor an `icon` is rejected. Map instincts: `info` → `note`, `success` → `tip`.
+
+**Worked example — a complete `set_blocks` payload:**
+
+```json
+[
+  {"type": "h2", "children": [{"text": "What is an MCP?"}]},
+  {"type": "p", "children": [
+    {"text": "Think of it like "},
+    {"text": "USB-C for AI", "bold": true},
+    {"text": " — one standard port, many tools."}
+  ]},
+  {"type": "ul", "children": [
+    {"type": "list-item", "children": [
+      {"type": "list-item-text", "children": [{"text": "One shared language"}]}
+    ]},
+    {"type": "list-item", "children": [
+      {"type": "list-item-text", "children": [{"text": "Any tool that speaks it plugs in"}]}
+    ]}
+  ]},
+  {"type": "callout", "variant": "tip", "children": [
+    {"text": "In one line: MCP lets an AI plug into external tools and data."}
+  ]}
+]
+```
+
+**Rich interactive blocks** — `tabs`, `accordion`, `flip_boxes`, `table`, `timeline`, `image_columns`, `hotspot_image`, `podcast` — have stricter typed shapes that are rejected if malformed. Don't hand-write them from memory: either use `generate_block`/`rewrite_block`, or `get_cell_blocks` on an existing cell that already has that block type and copy its shape.
+
+If a write is rejected, read the error — it names the exact block and problem (e.g. an invalid callout variant and the valid set) — fix that block and retry; don't loop guessing.
+
 ## Structure edits
 
 `add_section`, `add_cell`, `rename_cell`, `move_cell`, `reorder_sections`, `reorder_cells_in_section`, `remove_cell`, `remove_section` — all take `beeline_id` and an optional `expected_version` (the beeline's `graph_version`). `rename_cell` renames either a section or any content-cell type in place, preserving its id, slug, children, content, linked-object reference, assets, and learner progress. By default it also synchronizes the title of a linked assessment, survey, practical assessment, performance review, digital resource, or SCORM course; pass `rename_linked_object=false` only when that title should intentionally remain independent. It never renames a linked beeline (the cell is only its link label), and feedback forms have no title field. Remember that intentionally shared cells or linked objects will show the new name everywhere. `add_cell`'s `cell_type` is one of SLATE (rich text), DIRES (digital resource), BEELI (linked beeline), ASSES (assessment), SCORM, FDBK (feedback), PERF (performance review), PRACT (practical assessment), SURV (survey) — FRAME (a section) is never a valid `cell_type` here, use `add_section` for that.

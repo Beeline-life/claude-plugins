@@ -15,18 +15,17 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
   your Beeline admin/manager account, pick your workspace, and you're
   authorized. This is the same flow already validated manually per
   `docs/workspace-mcp-plugin/qa-setup.md`.
-- **Four skills** (`skills/beeline-build`, `skills/beeline-groups`,
-  `skills/beeline-insights`, `skills/beeline-insights-viz`) — not just a tool
-  list. Each teaches the workflow conventions the raw tool schemas don't carry
-  on their own: discover-before-edit, preview-then-confirm, the sync/async
-  threshold on bulk member moves, which tools are admin-only, and to always
-  surface the click-out URL a build tool returns. `beeline-insights-viz` turns
-  insights data into a clean, self-contained HTML chart/scorecard artifact
-  when the user wants to *see* it, not just read numbers.
-- **Two commands** — `/beeline-workspace:beeline-status` (quick dashboard
-  read) and `/beeline-workspace:beeline-new` (guided new-beeline flow).
+- **Five skills** (`skills/beeline-build`, `skills/beeline-groups`,
+  `skills/beeline-insights`, `skills/beeline-insights-viz`,
+  `skills/beeline-role-architect`) — not just a tool list. Each teaches the
+  workflow conventions the raw tool schemas don't carry on their own:
+  discover-before-edit, preview-then-confirm, forced KPI `evaluation_mode`,
+  which tools are admin-only, and to always surface click-out URLs.
+  `beeline-role-architect` drives Role Pack invent → patch → confirm.
+- **Three commands** — `/beeline-workspace:beeline-status`,
+  `/beeline-workspace:beeline-new`, `/beeline-workspace:beeline-roles`.
 
-## Tool surface (62 tools across 6 domains)
+## Tool surface (69 tools across 8 domains)
 
 | Domain | Count | Covers |
 |---|---|---|
@@ -34,8 +33,10 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 | Groups | 8 | Org hierarchy: create/edit/move/delete groups, move people, sync/async |
 | Reporting (Insights v2) | 7 | Group dashboard, group detail, learner list, per-program completion+progression, learner summary, cross-group **compare**, org **capability-gap** readout — all on the fact-table warehouse + gap engine, descendant rollup included |
 | Competency | 3 | Frameworks, learner snapshots, role gap analysis |
+| Roles | 2 | `list_job_roles` / `get_job_role` — dual-mode KPIs (metric/scale/both), competencies, standards |
 | Gap diagnosis | 1 | `diagnose_gaps` — fused five-signal WHY (role requirements, exact failed questions, decay, capability targets, manager KPI ratings) per learner / group subtree / org, with per-signal status honesty |
 | Workspace | 2 | List connectable workspaces; link-completed switching (signed browser link → confirm → re-auth with target pre-selected; docs/mcp-workspace-switching/spec.md) |
+| Proposals | 5 | Role Pack create/get/patch/confirm/reject (admin-only; poll `get_proposal` while generating) |
 
 > Counts are asserted in `core/modules/mcp_oauth/tests/test_workspace_mcp_surface.py`
 > (`EXPECTED_TOOL_COUNT`) — if you add/remove a tool, that test fails until both
