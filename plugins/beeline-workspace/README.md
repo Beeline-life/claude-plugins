@@ -25,13 +25,13 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 - **Three commands** — `/beeline-workspace:beeline-status`,
   `/beeline-workspace:beeline-new`, `/beeline-workspace:beeline-roles`.
 
-## Tool surface (75 tools across 8 domains)
+## Tool surface (78 tools across 8 domains)
 
 | Domain | Count | Covers |
 |---|---|---|
 | Build | 41 | Discover/create/clone/edit/**publish** beelines, cells, blocks, assessments, surveys, assets, and content sources |
 | Groups | 8 | Org hierarchy: create/edit/move/delete groups, move people, sync/async |
-| Reporting (Insights v2) | 13 | Group dashboard (+ **tag/segment rollup**), group detail, **segmented** learner list, per-program completion+progression, learner summary, cross-group **compare**, org **capability-gap** readout, **at-risk ranking**, **practical assessments**, **feedback + AI sentiment**, **per-course content report**, **activity/dormancy**, **tag vocabulary** — all on the fact-table warehouse + gap engine, descendant rollup included |
+| Reporting (Insights v2) | 16 | Group dashboard (+ **tag/segment rollup**), group detail, **segmented** learner list, per-program completion+progression, learner summary, cross-group **compare**, org **capability-gap** readout, **at-risk ranking**, **practical assessments**, **feedback + AI sentiment**, **per-course content report**, **activity/dormancy**, **completion trends**, **row-level practical records**, **theory assessment scores**, **tag vocabulary** — all on the fact-table warehouse + gap engine, descendant rollup included |
 | Competency | 3 | Frameworks, learner snapshots, role gap analysis |
 | Roles | 2 | `list_job_roles` / `get_job_role` — dual-mode KPIs (metric/scale/both), competencies, standards |
 | Gap diagnosis | 1 | `diagnose_gaps` — fused five-signal WHY (role requirements, exact failed questions, decay, capability targets, manager KPI ratings) per learner / group subtree / org, with per-signal status honesty |
@@ -92,9 +92,9 @@ Claude Code opens a browser for the OAuth flow automatically.
 ## Current distribution status
 
 - **Claude production connector:** `https://mcp.beeline.life/mcp`. The Claude
-  plugin format remains Claude-specific and keeps the full 75-tool workspace
+  plugin format remains Claude-specific and keeps the full 78-tool workspace
   surface.
-- **ChatGPT app:** `https://mcp.beeline.life/chatgpt/mcp` (22 tools). This is a
+- **ChatGPT app:** `https://mcp.beeline.life/chatgpt/mcp` (25 tools). This is a
   separate registration profile behind the same production domain: anonymous
   Build preview/claim tools plus OAuth-scoped, read-only Insights. It never
   advertises Claude's group mutations or low-level workspace Build editor tools.

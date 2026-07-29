@@ -107,6 +107,30 @@ ask for an org id or a group filter unless you need to disambiguate by name.
   cumulative thresholds, not disjoint buckets — someone inactive 90 days is also
   in the 30d and 60d counts. This answers "how many new starters this month" and
   "who's gone quiet", which no completion percentage can.
+- `list_practical_attempts(group_id?, learner_id?, beeline_id?, status?, final_attempts_only?)`
+  — individual practical RECORDS, one row per attempt: who did it, who assessed
+  it, the score, and its place in a redo chain, plus `chain_status` (the outcome
+  for that learner's whole chain, using the platform's own status rules). The
+  audit-trail answer — "every practical done at Bree Street last month and who
+  signed each one off". Use `get_practical_summary` for rates and backlog
+  instead; this returns rows, not aggregates. `final_attempts_only=true` gives
+  each learner's actual outcome, excluding superseded tries. Scores are **0-1**.
+- `get_assessment_scores(mode?, group_id?, learner_id?, assessment_id?, latest_only?)`
+  — theory quiz scores. `mode='by_learner'` (default) is one row per person:
+  quizzes taken, passed, average score, pass rate — worst average first, so it
+  answers "who's struggling on assessments". `mode='by_attempt'` is one row per
+  attempt, for drilling a specific quiz or person. Scores are **0-100** (note the
+  difference from practical's 0-1 — never average the two together). By default
+  only each learner's latest attempt per quiz counts, which is the honest "what
+  did they score"; `latest_only=false` gives full retry history.
+
+  ⚠️ **Say this out loud when you report these numbers.** These warehouse scores
+  were repaired after a fault that made them read as zero, and they have not yet
+  been reconciled against the source assessment records. Present them as
+  indicative and flag that verification is pending — do not let them go into a
+  board pack or client report as settled figures. Every other metric in this
+  skill is verified; this one is the exception.
+
 - `get_capability_gaps(group_id?, top_n?, include_insights?, full?)` — the CEO
   "where are our capability gaps?" readout: assessment performance aggregated up
   to COMPETENCIES ("the org is weak on Regulatory Compliance", not "question 123

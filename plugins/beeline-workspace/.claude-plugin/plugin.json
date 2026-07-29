@@ -1,6 +1,6 @@
 {
   "name": "beeline-workspace",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Build beelines, manage groups, pull deep workforce insights (completion, at-risk sites, practical assessments, feedback sentiment, dormancy, tag/segment breakdowns), and design job roles/KPIs/competencies via Role Pack proposals — all scoped to your organization through a real OAuth login. No JWT-pasting, no separate setup per user.",
   "author": {
     "name": "Beeline"
