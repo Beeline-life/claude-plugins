@@ -15,13 +15,17 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
   your Beeline admin/manager account, pick your workspace, and you're
   authorized. This is the same flow already validated manually per
   `docs/workspace-mcp-plugin/qa-setup.md`.
-- **Five skills** (`skills/beeline-build`, `skills/beeline-groups`,
+- **Six skills** (`skills/beeline-build`, `skills/beeline-groups`,
   `skills/beeline-insights`, `skills/beeline-insights-viz`,
-  `skills/beeline-role-architect`) — not just a tool list. Each teaches the
-  workflow conventions the raw tool schemas don't carry on their own:
-  discover-before-edit, preview-then-confirm, forced KPI `evaluation_mode`,
-  which tools are admin-only, and to always surface click-out URLs.
-  `beeline-role-architect` drives Role Pack invent → patch → confirm.
+  `skills/beeline-role-architect`, `skills/beeline-setup`) — not just a tool
+  list. Each teaches the workflow conventions the raw tool schemas don't carry
+  on their own: discover-before-edit, preview-then-confirm, forced KPI
+  `evaluation_mode`, which tools are admin-only, and to always surface click-out
+  URLs. `beeline-role-architect` drives Role Pack invent → patch → confirm.
+  `beeline-setup` diagnoses first-connection failures — above all the
+  empty-workspace-picker case, which is an account-role limitation (admin/manager
+  only) that reads as a broken install and otherwise sends clients to their IT
+  team for a problem no reinstall can fix.
 - **Three commands** — `/beeline-workspace:beeline-status`,
   `/beeline-workspace:beeline-new`, `/beeline-workspace:beeline-roles`.
 
@@ -44,18 +48,39 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 
 ## Install
 
-**From a Cowork session:** zip this directory and upload it via Plugins →
-Upload. Run from inside `plugin/` (not its parent) — `-x "*.DS_Store"` keeps
-macOS junk out without ever excluding a leading-dot file the plugin actually
-needs (`.mcp.json`, `.claude-plugin/plugin.json`):
+**Claude Code (recommended):**
+```bash
+/plugin marketplace add Beeline-life/claude-plugins
+/plugin install beeline-workspace@beeline
+```
+Note that third-party marketplaces have plugin **auto-update off by default** —
+`/plugin` → Marketplaces → enable auto-update, or clients sit on the version
+they first installed until they run `/plugin marketplace update`.
+
+**Cowork, internal (Beeline team):** already published to the private
+`beeline-claude-plugin-marketplace` and set to "Installed by default" — nothing
+to do.
+
+**Cowork, external clients:** once the plugin is live in Anthropic's community
+directory, clients install it from [claude.com/plugins](https://claude.com/plugins)
+and updates flow automatically from pushes to `Beeline-life/claude-plugins` —
+no re-submission, no re-upload. See `docs/plugin-distribution-automation/spec.md`.
+
+Until then (or for an org that blocks the directory), a client admin uploads the
+`.zip` from the docs page via **Plugins → Upload**. That path is a snapshot: it
+does **not** auto-update, so the admin must re-upload on every release. Prefer
+the directory.
+
+**Manual zip build** (only needed for a one-off; CI regenerates the docs-page
+copy on every webapp deploy via `scripts/build-plugin-zip.sh`). Run from inside
+`plugin/` (not its parent) — `-x "*.DS_Store"` keeps macOS junk out without ever
+excluding a leading-dot file the plugin actually needs (`.mcp.json`,
+`.claude-plugin/plugin.json`):
 
 ```bash
 cd clients/workspace-mcp/plugin
 zip -r beeline-workspace.plugin . -x "*.DS_Store"
 ```
-
-Or, if this repo is added as a private marketplace, install
-`beeline-workspace@<marketplace-name>`.
 
 **Locally, for iteration:** `claude --plugin-dir clients/workspace-mcp/plugin`
 loads it live; `claude plugin validate clients/workspace-mcp/plugin` checks

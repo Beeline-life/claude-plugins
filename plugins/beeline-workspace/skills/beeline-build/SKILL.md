@@ -25,6 +25,7 @@ Never guess a beeline_id or cell_id. Always resolve them first:
 
 - **Whole-cell rewrite:** `set_blocks(cell_id, new_blocks)` replaces everything in a cell in one write. Use this after generating a full new draft of a cell's content, not after a small fix.
 - **Surgical edit:** `replace_cell_block` / `insert_cell_block` / `delete_cell_block` / `move_cell_block` / `update_cell_block_text` for changing one block or reordering a few — use these for "fix this one paragraph" or "add a callout after the second block" requests, not for a full rewrite.
+  - **Anchors:** `insert_cell_block` takes **at most one** of `after_id` / `before_id` / `position` (`'prepend'`/`'append'`). Omit all three to append to the end — that's the common case. Passing two is rejected as ambiguous. `move_cell_block` is stricter: it needs a real destination (`after_id` or `to_index`), because "move this somewhere" has no safe default.
 - **AI-assisted:** `generate_block(cell_id, instruction)` and `rewrite_block(cell_id, block_id, instruction)` ask the platform's own AI to draft or rewrite a block — prefer these over hand-writing Slate JSON yourself when the user wants new prose, not a mechanical edit. Both accept `source_reference_ids` to ground generation in an attached content source.
 
 Every content-edit call takes an optional `expected_version` (the cell's `content_version` from your last read) — pass it when you want a stale-edit conflict to raise an error instead of silently clobbering someone else's concurrent change.
