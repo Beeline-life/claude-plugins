@@ -27,24 +27,36 @@ chart-ready JSON — your job is to shape a clean, accurate visual from it.
 ## What to render for each source
 
 **Group comparison — `get_group_dashboard` (or `get_group_detail` for one group's subtree).**
-Each group has `completion_pct` AND `avg_progress`. Draw a horizontal
-**paired bar** chart (two bars per group: completion vs progression), **sorted
-ascending by `completion_pct`** so the groups falling behind are at the top.
-Label each bar with its value; visually highlight the lowest. Title it with the
-org and the metric. This directly answers "which of our regions is behind" — and
-remember dashboard/detail numbers already include descendant-group members.
+Each group has `users_fully_complete_pct` AND `avg_user_progress_pct`. Draw a
+horizontal **paired bar** chart (two bars per group), **sorted ascending by
+`users_fully_complete_pct`** so the groups falling behind are at the top. Label
+each bar with its value; visually highlight the lowest. Title it with the org and
+the metric. This directly answers "which of our regions is behind" — and remember
+dashboard/detail numbers already include descendant-group members.
+
+⚠️ **Label the axes honestly.** The first series is "% of users fully complete
+(100% of all assigned content)" — never just "completion" — and the second is
+"average user progression", not a second flavour of completion. A group at 0% with
+a tall progression bar is mid-flight; the paired bars are what make that visible,
+so never drop the progression series to "simplify" the chart. If rows carry
+different `assignment_scope` values, note it in the caption — you are comparing
+groupings with different denominators.
 
 **Program (beeline) report — `get_program_report`.**
 Top: a row of stat tiles from `overall` (completion %, progression %, learners
 assigned, completed). Below: a bar chart of `by_group[].completion_pct` (add a
 second series for progression only if the rows carry it). Caption with the
 beeline name and whether the scope was org-wide or a specific group's subtree.
+(This tool still uses the per-beeline `completion_pct` name — it is one course's
+assigned-vs-completed learners, not the org-wide fully-complete measure.)
 
 **Learner scorecard — `get_learner_summary`.**
-A compact card, not a big chart: stat tiles (completion %, avg performance
-rating, streak, org rank, certificates), a small bar for the job-role KPI count
-or `section_counts`, and the `coaching_insight` as a highlighted callout at the
-bottom. Header = learner name, role, org.
+A compact card, not a big chart: stat tiles
+(`user_content_completed_pct` — label it "content completed", and show
+`user_fully_complete` as a "Fully complete" yes/no chip beside it — avg
+performance rating, streak, org rank, certificates), a small bar for the job-role
+KPI count or `section_counts`, and the `coaching_insight` as a highlighted callout
+at the bottom. Header = learner name, role, org.
 
 **Cohort comparison — `compare_groups`.**
 A grouped/ranked bar chart across the compared groups (completion %, with a

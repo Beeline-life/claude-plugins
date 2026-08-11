@@ -27,6 +27,11 @@ Never guess a beeline_id or cell_id. Always resolve them first:
 - **Surgical edit:** `replace_cell_block` / `insert_cell_block` / `delete_cell_block` / `move_cell_block` / `update_cell_block_text` for changing one block or reordering a few — use these for "fix this one paragraph" or "add a callout after the second block" requests, not for a full rewrite.
   - **Anchors:** `insert_cell_block` takes **at most one** of `after_id` / `before_id` / `position` (`'prepend'`/`'append'`). Omit all three to append to the end — that's the common case. Passing two is rejected as ambiguous. `move_cell_block` is stricter: it needs a real destination (`after_id` or `to_index`), because "move this somewhere" has no safe default.
 - **AI-assisted:** `generate_block(cell_id, instruction)` and `rewrite_block(cell_id, block_id, instruction)` ask the platform's own AI to draft or rewrite a block — prefer these over hand-writing Slate JSON yourself when the user wants new prose, not a mechanical edit. Both accept `source_reference_ids` to ground generation in an attached content source.
+- **Interactive blocks (prefer these dedicated tools over hand-writing Slate):**
+  - When choosing *which* interactive format, load `beeline-instructional-design`.
+  - `add_flip_boxes(cell_id, instruction)` — flashcard / reveal cards (≥2). Use for vocabulary and “test yourself” moments.
+  - `add_comparison_block(cell_id, instruction, left_label?, right_label?)` — Good/Bad Manager (or Do/Don't) paired rows. Defaults labels to Bad Manager / Good Manager.
+  - `add_ai_narration(cell_id, script?, instruction?, voice?, provider?)` — metered voiceover: drafts a script if needed, runs TTS billed to this workspace, inserts an `ai_narration` block. Returns `asset_id` + `final_audio_url` (never raw audio bytes).
 
 Every content-edit call takes an optional `expected_version` (the cell's `content_version` from your last read) — pass it when you want a stale-edit conflict to raise an error instead of silently clobbering someone else's concurrent change.
 
@@ -78,7 +83,7 @@ A callout with neither a valid `variant` nor an `icon` is rejected. Map instinct
 ]
 ```
 
-**Rich interactive blocks** — `tabs`, `accordion`, `flip_boxes`, `table`, `timeline`, `image_columns`, `hotspot_image`, `podcast` — have stricter typed shapes that are rejected if malformed. Don't hand-write them from memory: either use `generate_block`/`rewrite_block`, or `get_cell_blocks` on an existing cell that already has that block type and copy its shape.
+**Rich interactive blocks** — `tabs`, `accordion`, `flip_boxes`, `comparison`, `table`, `timeline`, `image_columns`, `hotspot_image`, `podcast`, `ai_narration` — have stricter typed shapes that are rejected if malformed. Don't hand-write them from memory: use `add_flip_boxes` / `add_comparison_block` / `add_ai_narration` for those three, `generate_block`/`rewrite_block` for others, or `get_cell_blocks` on an existing cell that already has that block type and copy its shape.
 
 If a write is rejected, read the error — it names the exact block and problem (e.g. an invalid callout variant and the valid set) — fix that block and retry; don't loop guessing.
 

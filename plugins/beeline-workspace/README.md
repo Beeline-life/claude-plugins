@@ -15,25 +15,26 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
   your Beeline admin/manager account, pick your workspace, and you're
   authorized. This is the same flow already validated manually per
   `docs/workspace-mcp-plugin/qa-setup.md`.
-- **Six skills** (`skills/beeline-build`, `skills/beeline-groups`,
-  `skills/beeline-insights`, `skills/beeline-insights-viz`,
+- **Seven skills** (`skills/beeline-build`, `skills/beeline-instructional-design`,
+  `skills/beeline-groups`, `skills/beeline-insights`, `skills/beeline-insights-viz`,
   `skills/beeline-role-architect`, `skills/beeline-setup`) — not just a tool
   list. Each teaches the workflow conventions the raw tool schemas don't carry
   on their own: discover-before-edit, preview-then-confirm, forced KPI
   `evaluation_mode`, which tools are admin-only, and to always surface click-out
-  URLs. `beeline-role-architect` drives Role Pack invent → patch → confirm.
-  `beeline-setup` diagnoses first-connection failures — above all the
-  empty-workspace-picker case, which is an account-role limitation (admin/manager
-  only) that reads as a broken install and otherwise sends clients to their IT
-  team for a problem no reinstall can fix.
+  URLs. `beeline-instructional-design` picks the right interactive format (flip
+  boxes vs comparison vs VO vs assessment). `beeline-role-architect` drives Role
+  Pack invent → patch → confirm. `beeline-setup` diagnoses first-connection
+  failures — above all the empty-workspace-picker case, which is an account-role
+  limitation (admin/manager only) that reads as a broken install and otherwise
+  sends clients to their IT team for a problem no reinstall can fix.
 - **Three commands** — `/beeline-workspace:beeline-status`,
   `/beeline-workspace:beeline-new`, `/beeline-workspace:beeline-roles`.
 
-## Tool surface (78 tools across 8 domains)
+## Tool surface (81 tools across 8 domains)
 
 | Domain | Count | Covers |
 |---|---|---|
-| Build | 41 | Discover/create/clone/edit/**publish** beelines, cells, blocks, assessments, surveys, assets, and content sources |
+| Build | 44 | Discover/create/clone/edit/**publish** beelines, cells, blocks (incl. flip boxes, comparison, AI narration/VO), assessments, surveys, assets, and content sources |
 | Groups | 8 | Org hierarchy: create/edit/move/delete groups, move people, sync/async |
 | Reporting (Insights v2) | 16 | Group dashboard (+ **tag/segment rollup**), group detail, **segmented** learner list, per-program completion+progression, learner summary, cross-group **compare**, org **capability-gap** readout, **at-risk ranking**, **practical assessments**, **feedback + AI sentiment**, **per-course content report**, **activity/dormancy**, **completion trends**, **row-level practical records**, **theory assessment scores**, **tag vocabulary** — all on the fact-table warehouse + gap engine, descendant rollup included |
 | Competency | 3 | Frameworks, learner snapshots, role gap analysis |
@@ -117,16 +118,19 @@ Claude Code opens a browser for the OAuth flow automatically.
 ## Current distribution status
 
 - **Claude production connector:** `https://mcp.beeline.life/mcp`. The Claude
-  plugin format remains Claude-specific and keeps the full 78-tool workspace
+  plugin format remains Claude-specific and keeps the full 81-tool workspace
   surface.
-- **ChatGPT app:** `https://mcp.beeline.life/chatgpt/mcp` (25 tools). This is a
-  separate registration profile behind the same production domain: anonymous
-  Build preview/claim tools plus OAuth-scoped, read-only Insights. It never
-  advertises Claude's group mutations or low-level workspace Build editor tools.
-  Note `tools/reporting.py` is registered on BOTH profiles, so any reporting
-  tool added there must also be listed in `CHATGPT_OAUTH_TOOL_NAMES`
-  (`profiles.py`) or anonymous ChatGPT callers get a raw auth error instead of
-  the OAuth link challenge.
+- **ChatGPT / OpenAI plugin:** `https://mcp.beeline.life/chatgpt/mcp` (**89 tools** —
+  full 81-tool Workspace surface under OAuth plus 8 guest Build tools).
+  Same seven skills ship as Skills + MCP via
+  [`../openai-plugin/`](../openai-plugin/) (synced from this `skills/` tree —
+  edit here, then `scripts/sync-openai-plugin-skills.sh`). Runtime also exposes
+  compressed MCP instructions + **10** prompts in
+  `clients/workspace-mcp/guidance/`. Guest Build remains `noauth` and
+  secret-scoped; every other tool is derived into `CHATGPT_OAUTH_TOOL_NAMES`
+  after registration so unlinked callers get an OAuth challenge. Publish
+  playbook: `ops/active/chatgpt-workspace-plugin-publish.md`. Spec:
+  `docs/chatgpt-workspace-parity/spec.md`.
 - **Admin/manager accounts only.** Learner and regular-user accounts see an
   empty workspace picker with no explanation at the OAuth step — a known UX
   gap, not a bug in this plugin.

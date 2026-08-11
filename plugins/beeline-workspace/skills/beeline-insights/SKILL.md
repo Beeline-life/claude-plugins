@@ -8,38 +8,85 @@ description: "Use when the user asks about workforce performance, completion or 
 Read-only reporting and competency tools. **Reporting reads the Insights v2
 fact-table warehouse** (the `rep_*` materialized views) — the same source the
 in-app Insights tab uses, not the old engine. Two things it gives you: every
-metric comes in both **completion** (`completion_pct`, % of assigned learners
-fully complete) and **progression** (`avg_progress`, avg in-progress %), 0-100;
-and **group metrics roll up descendant-group members automatically** — ask about
-a region and you get the whole region, no per-store tallying.
+metric comes in both **completion** and **progression**, 0-100; and **group
+metrics roll up descendant-group members automatically** — ask about a region and
+you get the whole region, no per-store tallying.
 
 Everything is scoped to the authorized workspace and the caller's role — a
 manager only ever sees their managed groups, an admin sees the whole org. Don't
 ask for an org id or a group filter unless you need to disambiguate by name.
 
+## Read this before quoting any completion number
+
+There is no field called "completion". The word hid three different questions, so
+the tools name all three (and every response repeats these definitions in its own
+`metric_definitions` block — read it):
+
+| Field | Level | Means |
+|---|---|---|
+| `users_fully_complete_pct` / `_count` | GROUP | How many USERS are **fully complete** — 100% of ALL their assigned content, all-or-nothing, **no partial credit**. Someone at 90% does not count. |
+| `group_fully_complete` (bool) | GROUP | True only when **every** user in the group is fully complete. `null` for a group with no users — undefined, not incomplete. |
+| `groups_fully_complete_count` | GROUP | How many of the listed groups are fully complete. |
+| `avg_user_progress_pct` | GROUP | Average **progression** — how far through their content people are. **Not completion.** |
+| `user_fully_complete` (bool) | USER | That ONE person is 100% done on all their assigned content. |
+| `user_content_completed_pct` | USER | That person's **partially-credited** % — 90 means 90% done and `user_fully_complete` is false. |
+| `user_avg_progress_pct` | USER | That person's average progression through each beeline. |
+| `beelines_assigned_to_group` / `beelines_completed_in_group` | USER, group-scoped | Counted only within THIS group's assignments. |
+| `beelines_assigned_to_user` / `beelines_completed_by_user` | USER, user-total | ALL content assigned to them, across every membership. |
+
+**Every response also carries `assignment_scope`** — `assigned_to_this_group_only`
+or `all_content_assigned_to_user`. It decides what a percentage *means*, so quote
+it:
+
+- A group at **0% users fully complete** with a healthy `avg_user_progress_pct`
+  is **mid-flight** — people are working, nobody has hit 100% yet. Not a failure.
+- A group at 0% whose members get their training through *other* groups (their
+  store or role group) is a statement about **the grouping, not the people**. Say
+  "0 users are fully complete against content assigned to this grouping — these
+  people may be fully complete on their own totals" and check
+  `get_learner_summary` / `list_learners` before calling anyone behind. This
+  really happened: three manager groups looked like the worst in the org while
+  their members were 95%-scoring and 100% complete on their store groups.
+- Never report a group percentage and a person percentage as the same measure.
+
 ## Reporting
 
 - `get_group_dashboard(classification_system_type?, group_by_tag_category?)` —
   the workhorse. Org `summary` + `classification_counts` + a per-group list,
-  each group carrying both `completion_pct` and `avg_progress`, plus learner
-  counts, `total_overdue`, and `pending_pa_reviews`. This is where group
-  `group_id`s come from. Optional filter `classification_system_type`: 'LOC',
-  'ROL', or 'GEN'. Pass `group_by_tag_category` (a slug from `list_group_tags`)
-  to ALSO get a `by_tag` rollup — that's how you answer "break completion down
-  by area manager / store format / region" when the cut is a tag rather than a
-  group classification. Each bucket is a real warehouse aggregate over that
-  tag's distinct learners, not a sum of group rows, so the numbers are safe to
-  quote. Groups with no tag in the category appear in an "Untagged" bucket with
-  `completion_pct: null` — say so rather than implying full coverage.
+  each group carrying `users_fully_complete_pct` / `users_fully_complete_count`,
+  the separate `group_fully_complete` flag, and `avg_user_progress_pct`, plus
+  learner counts, `total_overdue`, and `pending_pa_reviews`. `summary` adds
+  `groups_fully_complete_count`. `summary.total_learners` is DISTINCT people
+  across every membership in scope — not a sum of per-group seats — so use
+  it for "how many users in this workspace". Each row's `assignment_scope`
+  says which denominator it counted. This is where group `group_id`s come
+  from. Optional
+  filter `classification_system_type`: 'LOC', 'ROL', or 'GEN'. Pass
+  `group_by_tag_category` (a slug from `list_group_tags`) to ALSO get a `by_tag`
+  rollup — that's how you answer "break completion down by area manager / store
+  format / region" when the cut is a tag rather than a group classification. Each
+  bucket is a real warehouse aggregate over that tag's distinct learners, not a
+  sum of group rows, so the numbers are safe to quote. Groups with no tag in the
+  category appear in an "Untagged" bucket with `users_fully_complete_pct: null` —
+  say so rather than implying full coverage.
 - `get_group_detail(group_id, learner_sample_size?)` — one group's rolled-up
-  `summary` (completion, progression, active_7d/30d, overdue, avg assessment) PLUS
-  its whole subtree's members, and a sample of learner rows. `group_id` required
-  (from the dashboard). Descendant members are included automatically.
+  `summary` (`users_fully_complete_pct`, `group_fully_complete`,
+  `avg_user_progress_pct`, active_7d/30d, overdue, avg assessment) PLUS its whole
+  subtree's members, and a sample of learner rows. The learner rows are USER-level
+  (`user_fully_complete`, not the old per-learner `is_group_complete`), and the
+  response's `assignment_scope` tells you whether their assigned counts are this
+  group's slice (`beelines_assigned_to_group`) or the person's org-wide total
+  (`beelines_assigned_to_user`). `group_id` required (from the dashboard).
+  Descendant members are included automatically.
 - `list_learners(...)` — the segmentation workhorse, and the tool for
   people-and-place questions ("how many baristas per store", "who's dormant in
-  the Kiosk sites", "everyone scoring under 50"). Paginated learners with
-  completion + progression, plus `kpis` computed over the SAME filtered
-  population, so the headline and the rows never disagree. Filters:
+  the Kiosk sites", "everyone scoring under 50"). Paginated learners, each row
+  USER-level over ALL content assigned to them (`user_fully_complete`,
+  `user_content_completed_pct`, `beelines_assigned_to_user`,
+  `user_avg_progress_pct`), plus `kpis` computed over the SAME filtered
+  population — those are COHORT-level (`users_fully_complete_pct`,
+  `avg_user_progress_pct`, `beelines_assigned_to_users_total`), so the headline
+  and the rows never disagree. Filters:
   `group_id` (+ `include_descendants`, default true), `search`, `overdue_only`,
   `sort` ('name', 'completion', 'progress', 'assessment', 'overdue',
   'recent_active'), `tags` (tag NAMES — see `list_group_tags`), `roles`,
@@ -56,8 +103,12 @@ ask for an org id or a group filter unless you need to disambiguate by name.
   per-cell reporting isn't exposed yet.
 - `get_learner_summary(user_id, full?)` — a rich single-learner summary from the
   profile service: job role + KPIs, performance-review rating/cycle, learning
-  completion, streak, nectar/rank, certificates, reviews due, and a coaching
-  insight. Use for "give me a rundown on [person]". For their 2D competency
+  (`beelines_assigned_to_user` / `beelines_completed_by_user`,
+  `user_content_completed_pct`, and the all-or-nothing `user_fully_complete` —
+  `null` when they have nothing assigned), streak, nectar/rank, certificates,
+  reviews due, and a coaching insight. Counts ALL content assigned to them, which
+  is why this can say fully complete while a group they're in reports 0%.
+  Use for "give me a rundown on [person]". For their 2D competency
   picture use `get_learner_competency_snapshot` (below) — this summary doesn't
   duplicate it. `full=true` returns the complete profile payload.
 - `compare_groups(group_ids)` — side-by-side comparison of 2–10 groups with
@@ -66,9 +117,14 @@ ask for an org id or a group filter unless you need to disambiguate by name.
   include its descendant members. Great to visualize (see beeline-insights-viz).
 - `get_at_risk(mode?, top_n?)` — "who needs attention today", worst first, each
   row with a one-line `why`. `mode='groups'` (default) ranks stores/regions by
-  completion ascending; `mode='learners'` ranks individuals. Empty groups are
-  excluded (they read as 0% while representing nobody) and reported in
-  `excluded_empty_groups`. Prefer this over eyeballing the dashboard.
+  `users_fully_complete_pct` ascending; `mode='learners'` ranks individuals
+  (USER-level fields). Empty groups are excluded (they read as 0% while
+  representing nobody) and reported in `excluded_empty_groups`. Prefer this over
+  eyeballing the dashboard. ⚠️ In `groups` mode this ranks GROUPINGS, not people:
+  before calling a group the worst in the org, check its
+  `avg_user_progress_pct` (real progression = mid-flight, not failing) and its
+  `assignment_scope` (a group-scoped 0% may just mean nothing was assigned
+  through that group). Say which you're reporting.
 - `list_group_tags()` — the segmentation vocabulary: every tag category and its
   values. **Call this first whenever the user asks for a breakdown "by
   something" that isn't a group classification** (area manager, FSM, store
@@ -139,7 +195,12 @@ ask for an org id or a group filter unless you need to disambiguate by name.
   scoped to a group's subtree. Needs the org's capability/competency data to be
   live; `include_insights=false` gives a faster numbers-only read.
 
-**Completion rate is always "completed / assigned" against the SAME population** — if a number looks inconsistent with what the user expects, say so rather than silently reconciling it yourself; this codebase treats denominator mismatches as a real bug class, not a rounding quirk.
+**Every rate is "completed / assigned" against the SAME population, and the field
+name tells you which population** (`_to_group` vs `_to_user`,
+`users_fully_complete_*` vs `user_*`). If a number looks inconsistent with what
+the user expects, quote the field name and its `assignment_scope` rather than
+silently reconciling it yourself; this codebase treats denominator mismatches as a
+real bug class, not a rounding quirk.
 
 ## Competency
 
