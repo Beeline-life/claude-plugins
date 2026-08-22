@@ -31,7 +31,8 @@ Never guess a beeline_id or cell_id. Always resolve them first:
   - When choosing *which* interactive format, load `beeline-instructional-design`.
   - `add_flip_boxes(cell_id, instruction)` — flashcard / reveal cards (≥2). Use for vocabulary and “test yourself” moments.
   - `add_comparison_block(cell_id, instruction, left_label?, right_label?)` — Good/Bad Manager (or Do/Don't) paired rows. Defaults labels to Bad Manager / Good Manager.
-  - `add_ai_narration(cell_id, script?, instruction?, voice?, provider?)` — metered voiceover: drafts a script if needed, runs TTS billed to this workspace, inserts an `ai_narration` block. Returns `asset_id` + `final_audio_url` (never raw audio bytes).
+  - `add_ai_narration(cell_id, script?, instruction?, voice?, provider?, language?)` — metered voiceover: drafts a script if needed, runs TTS billed to this workspace, inserts an `ai_narration` block. Returns `asset_id` + `final_audio_url` (never raw audio bytes).
+  - `list_narration_voices()` — call this FIRST whenever the author names a voice ("use Thandi"). A voice only works with the provider that serves it (Thandi is `elevenlabs`, not the default `openai`), and `language` defaults to the voice's own — leave it alone unless the author asks for something specific, because a block whose language contradicts its voice cannot be edited in Build Mode afterwards. Never guess a voice name: TTS is billed per character, so a wrong guess costs the workspace real money.
 
 Every content-edit call takes an optional `expected_version` (the cell's `content_version` from your last read) — pass it when you want a stale-edit conflict to raise an error instead of silently clobbering someone else's concurrent change.
 
@@ -95,7 +96,7 @@ For a DIRES cell from an already-uploaded file, `add_digital_resource_cell(beeli
 
 ## Assessments and surveys
 
-Once a cell of type ASSES exists, manage its questions with `list_questions`/`add_question`/`update_question`/`delete_question`/`reorder_questions`. The valid `question_type` codes are: `MUCQ` (multiple choice), `SHAN` (short answer), `DDMQ` (drag & drop match), `DTWQ` (drag the word), `ORDQ` (ordering), `TEFE` (true/false), `ACKN` (acknowledgement). Multiple choice is `MUCQ` — not "MCQU" or "MCSA", both of which the validator rejects. Same shape for SURV cells via `list_survey_fields`/`add_survey_field`/`update_survey_field`/`delete_survey_field`/`reorder_survey_fields`.
+Once a cell of type ASSES exists, manage its questions with `list_questions`/`add_question`/`update_question`/`delete_question`/`reorder_questions`, and the assessment itself with `update_assessment_settings` (pass mark, attempts, time limit, shuffle). A pass mark alone is ADVISORY — "80% is required to pass" needs `pass_mark_percent=80` **and** `required_to_pass=True`, otherwise attempting the assessment is enough to progress. The mark is a percent (`80`), never a fraction (`0.8`). Current values come back on `list_questions` under `settings`. The valid `question_type` codes are: `MUCQ` (multiple choice), `SHAN` (short answer), `DDMQ` (drag & drop match), `DTWQ` (drag the word), `ORDQ` (ordering), `TEFE` (true/false), `ACKN` (acknowledgement). Multiple choice is `MUCQ` — not "MCQU" or "MCSA", both of which the validator rejects. Same shape for SURV cells via `list_survey_fields`/`add_survey_field`/`update_survey_field`/`delete_survey_field`/`reorder_survey_fields`.
 
 ## Keeping a beeline in sync with its source document
 

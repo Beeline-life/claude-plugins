@@ -45,13 +45,15 @@ Never 0–1 (rating 0 means unanswered).
 
 ## Proposal tools
 
-- `create_role_pack_proposal(pasted_text=..., file_keys=...)` — admin; needs text and/or uploaded `file_keys` (no raw bytes). Returns generating → poll.
+- `create_role_pack_proposal(pasted_text=..., file_keys=..., plan=...)` — admin; needs text, uploaded `file_keys`, and/or a full `plan`. Without `plan`, returns generating → poll. With `plan`, skips generation (use this when generation fails).
 - `get_proposal(proposal_id)` — status, conflicts, confidence, plan summary, progress.
-- `patch_proposal_plan(proposal_id, plan)` — full validated plan replacement (include `evaluation_mode` on every KPI).
+- `patch_proposal_plan(proposal_id, plan)` — full validated plan replacement (include `evaluation_mode` on every KPI). Legal while generating/proposed/edited. `rejected` is terminal — create a new proposal with `plan=` instead.
 - `confirm_proposal(proposal_id)` — **only after explicit user approval**. Applies atomically.
 - `reject_proposal(proposal_id, reason=...)` — discard.
 
-While `status=generating`, poll `get_proposal` and narrate progress. Surface `conflicts[]` honestly — do not hide low-confidence KPIs.
+Canonical plan keys (do not invent): `suggested_framework_name`, role `name`/`description`/`confidence`/`match_strategy` (`new`|`update_existing`|`skip`), competency `competency_name`/`competency_description`/`required_numeric_level`/`confidence`, KPI `title`/`description`/`evaluation_mode`/`confidence`. Aliases (`framework_name`, competency `name`+`level`, `match_strategy=create`) are rewritten server-side.
+
+While `status=generating`, poll `get_proposal` and narrate progress. Surface `conflicts[]` honestly — do not hide low-confidence KPIs. If generation fails, either `patch_proposal_plan` (if still generating) or `create_role_pack_proposal(plan=...)`.
 
 ## Workshop questions (prefer short choices)
 
