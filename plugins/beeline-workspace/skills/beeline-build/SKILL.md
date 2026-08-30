@@ -12,7 +12,7 @@ Beelines are courses made of ordered sections, each holding ordered content cell
 Never guess a beeline_id or cell_id. Always resolve them first:
 
 1. Use `search_workspace_content` when the user knows a cell, phrase, source, file, or asset but not its Beeline/id. It searches Beelines, cell names and body text, ContentSources, and workspace Assets; narrow with `entity_types` when useful. Use `list_beelines` when the request is specifically to browse/filter Beeline titles and statuses. Surface returned click-out URLs.
-2. `get_beeline_metadata(beeline_id)` for status, structure type, language, and delivery method — use this alongside structure when you need full context before editing, e.g. to check a beeline isn't already PUBLISHED before making a destructive change.
+2. `get_beeline_metadata(beeline_id)` for status, structure type, language, delivery method, the certificate configuration, and the canvas learning outcomes — use this alongside structure when you need full context before editing, e.g. to check a beeline isn't already PUBLISHED before making a destructive change, and always as the read half before `update_beeline_metadata`.
 3. `get_beeline_structure(beeline_id)` to see the section/cell tree, each entry with `cell_id`, `name`, `type`, `slug`, and a click-out `url`. This also returns the `graph_version` — pass it back as `expected_version` on structure edits so a conflicting concurrent edit is rejected instead of silently overwritten.
 4. `get_cell_blocks(cell_id)` to read a cell's actual Slate content blocks before editing them — the returned block `id`s are how you address them in edit calls.
 
@@ -20,6 +20,12 @@ Never guess a beeline_id or cell_id. Always resolve them first:
 
 - **From nothing:** `create_beeline(name, description)` makes an empty beeline with one empty section. Immediately follow with `add_section`/`add_cell` to fill it in — don't stop after create_beeline and call it done.
 - **From an existing beeline:** `duplicate_beeline(beeline_id)` clones the whole thing (all sections, cells, questions, survey fields) into a new independent copy in the same content library. Use this when the user says "make one like X for Y" instead of building from zero. Note: it only clones content — it does not reassign the new copy to a different group; that's a separate step outside this tool's scope.
+
+## Beeline-level settings
+
+`update_beeline_metadata(beeline_id, description?, enable_certification?, certification_criteria?, learning_outcomes?)` writes the beeline's own settings — every argument is optional and omitting one leaves it untouched. Use it for "add a description", "turn the certificate on", "set the learning outcomes". `learning_outcomes` REPLACES the whole list, so read `get_beeline_metadata` first and send the full set back, not just your additions. `certification_criteria` is any of `"ALLC"` (all cells completed) / `"MANU"` (manual check by an admin/manager).
+
+Still UI-only, so say so rather than pretending: renaming a beeline, the cover image, choosing a custom certificate PDF, and the canvas' design-time fields (persona, target job roles, business outcomes, competencies).
 
 ## Editing content — pick the right granularity
 

@@ -5,7 +5,7 @@ description: "Use when the user wants to change their org's group or hierarchy s
 
 # Beeline Groups
 
-Groups model an org's structure — locations, regions, teams, roles — as a tree, max 3 levels deep. Every structural tool here is preview-then-confirm: call once without `confirm` to see exactly what would happen (zero writes), then call again with `confirm=True` to actually do it. Never skip the preview step, and always show the preview to the user before confirming unless they've explicitly said to just do it.
+Groups model an org's structure — locations, regions, teams, roles — as a tree, max 5 levels deep. Every structural tool here is preview-then-confirm: call once without `confirm` to see exactly what would happen (zero writes), then call again with `confirm=True` to actually do it. Never skip the preview step, and always show the preview to the user before confirming unless they've explicitly said to just do it.
 
 ## Auth model — know who can do what
 
@@ -21,7 +21,7 @@ Groups model an org's structure — locations, regions, teams, roles — as a tr
 
 ## Moving and deleting groups
 
-- `move_group(group_id, new_parent_group_id)` moves a group **and everything under it** — the preview shows `descendant_count` so "move this branch" doesn't surprise anyone about what else comes with it. Rejected if it would push any descendant past depth 3, or if it's a self-parent/cycle.
+- `move_group(group_id, new_parent_group_id)` moves a group **and everything under it** — the preview shows `descendant_count` so "move this branch" doesn't surprise anyone about what else comes with it. Rejected if it would push any descendant past the 5-level maximum, or if it's a self-parent/cycle.
 - `delete_group(group_id)` is a **permanent hard delete** — sub-groups are promoted to root, never orphaned, but the group itself is gone. If the user actually wants a reversible hide, use `edit_group(active=False)` instead — don't reach for delete by default.
 
 ## Moving people between groups

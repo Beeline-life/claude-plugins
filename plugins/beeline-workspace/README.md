@@ -30,11 +30,11 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 - **Three commands** — `/beeline-workspace:beeline-status`,
   `/beeline-workspace:beeline-new`, `/beeline-workspace:beeline-roles`.
 
-## Tool surface (85 tools across 8 domains)
+## Tool surface (86 tools across 8 domains)
 
 | Domain | Count | Covers |
 |---|---|---|
-| Build | 46 | Discover/create/clone/edit/**publish** beelines, cells, blocks (incl. flip boxes, comparison, AI narration/VO with a **voice catalogue**), **assessment settings (pass mark/attempts/timing)**, assessments, surveys, assets, and content sources |
+| Build | 47 | Discover/create/clone/edit/**publish** beelines, **beeline settings (description, certificate toggle, canvas learning outcomes)**, cells, blocks (incl. flip boxes, comparison, AI narration/VO with a **voice catalogue**), **assessment settings (pass mark/attempts/timing)**, assessments, surveys, assets, and content sources |
 | Groups | 8 | Org hierarchy: create/edit/move/delete groups, move people, sync/async |
 | Reporting (Insights v2) | 16 | Group dashboard (+ **tag/segment rollup**), group detail, **segmented** learner list, per-program completion+progression, learner summary, cross-group **compare**, org **capability-gap** readout, **at-risk ranking**, **practical assessments**, **feedback + AI sentiment**, **per-course content report**, **activity/dormancy**, **completion trends**, **row-level practical records**, **theory assessment scores**, **tag vocabulary** — all on the fact-table warehouse + gap engine, descendant rollup included |
 | Competency | 3 | Frameworks, learner snapshots, role gap analysis |
@@ -120,8 +120,8 @@ Claude Code opens a browser for the OAuth flow automatically.
 - **Claude production connector:** `https://mcp.beeline.life/mcp`. The Claude
   plugin format remains Claude-specific and keeps the full 85-tool workspace
   surface.
-- **ChatGPT / OpenAI plugin:** `https://mcp.beeline.life/chatgpt/mcp` (**93 tools** —
-  full 85-tool Workspace surface under OAuth plus 8 guest Build tools).
+- **ChatGPT / OpenAI plugin:** `https://mcp.beeline.life/chatgpt/mcp` (**94 tools** —
+  full 86-tool Workspace surface under OAuth plus 8 guest Build tools).
   Same seven skills ship as Skills + MCP via
   [`../openai-plugin/`](../openai-plugin/) (synced from this `skills/` tree —
   edit here, then `scripts/sync-openai-plugin-skills.sh`). Runtime also exposes

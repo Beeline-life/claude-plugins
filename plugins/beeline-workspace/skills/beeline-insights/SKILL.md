@@ -25,7 +25,7 @@ the tools name all three (and every response repeats these definitions in its ow
 | Field | Level | Means |
 |---|---|---|
 | `users_fully_complete_pct` / `_count` | GROUP | How many USERS are **fully complete** — 100% of ALL their assigned content, all-or-nothing, **no partial credit**. Someone at 90% does not count. |
-| `group_fully_complete` (bool) | GROUP | True only when **every** user in the group is fully complete. `null` for a group with no users — undefined, not incomplete. |
+| `group_fully_complete` (bool) | GROUP | True only when **every user with assigned learning** in the group is fully complete. Unassigned roster members do not block it. `null` when nobody is assigned — undefined, not incomplete. |
 | `groups_fully_complete_count` | GROUP | How many of the listed groups are fully complete. |
 | `avg_user_progress_pct` | GROUP | Average **progression** — how far through their content people are. **Not completion.** |
 | `user_fully_complete` (bool) | USER | That ONE person is 100% done on all their assigned content. |
