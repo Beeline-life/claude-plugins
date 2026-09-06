@@ -30,7 +30,7 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 - **Three commands** — `/beeline-workspace:beeline-status`,
   `/beeline-workspace:beeline-new`, `/beeline-workspace:beeline-roles`.
 
-## Tool surface (86 tools across 8 domains)
+## Tool surface (89 tools across 9 domains)
 
 | Domain | Count | Covers |
 |---|---|---|
@@ -42,6 +42,7 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 | Gap diagnosis | 1 | `diagnose_gaps` — fused five-signal WHY (role requirements, exact failed questions, decay, capability targets, manager KPI ratings) per learner / group subtree / org, with per-signal status honesty |
 | Workspace | 2 | List connectable workspaces; link-completed switching (signed browser link → confirm → re-auth with target pre-selected; docs/mcp-workspace-switching/spec.md) |
 | Proposals | 5 | Role Pack create/get/patch/confirm/reject (admin-only; poll `get_proposal` while generating) |
+| Hive Mind | 3 | `ask_org_knowledge` — a cited answer from the content the CALLER can reach (assigned or shared with their groups), plus the ChatGPT Company Knowledge pair `search` / `fetch` over the same corpus. The one **learner-scoped** family here: never the workspace at large, never another workspace. Per-workspace on the `HIVE_MIND` org flag |
 
 > Counts are asserted in `core/modules/mcp_oauth/tests/test_workspace_mcp_surface.py`
 > (`EXPECTED_TOOL_COUNT`) — if you add/remove a tool, that test fails until both
@@ -118,10 +119,10 @@ Claude Code opens a browser for the OAuth flow automatically.
 ## Current distribution status
 
 - **Claude production connector:** `https://mcp.beeline.life/mcp`. The Claude
-  plugin format remains Claude-specific and keeps the full 85-tool workspace
+  plugin format remains Claude-specific and keeps the full 89-tool workspace
   surface.
-- **ChatGPT / OpenAI plugin:** `https://mcp.beeline.life/chatgpt/mcp` (**94 tools** —
-  full 86-tool Workspace surface under OAuth plus 8 guest Build tools).
+- **ChatGPT / OpenAI plugin:** `https://mcp.beeline.life/chatgpt/mcp` (**97 tools** —
+  full 89-tool Workspace surface under OAuth plus 8 guest Build tools).
   Same seven skills ship as Skills + MCP via
   [`../openai-plugin/`](../openai-plugin/) (synced from this `skills/` tree —
   edit here, then `scripts/sync-openai-plugin-skills.sh`). Runtime also exposes
