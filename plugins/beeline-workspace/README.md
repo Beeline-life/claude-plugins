@@ -30,7 +30,7 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 - **Three commands** — `/beeline-workspace:beeline-status`,
   `/beeline-workspace:beeline-new`, `/beeline-workspace:beeline-roles`.
 
-## Tool surface (89 tools across 9 domains)
+## Tool surface (90 tools across 10 domains)
 
 | Domain | Count | Covers |
 |---|---|---|
@@ -43,10 +43,19 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 | Workspace | 2 | List connectable workspaces; link-completed switching (signed browser link → confirm → re-auth with target pre-selected; docs/mcp-workspace-switching/spec.md) |
 | Proposals | 5 | Role Pack create/get/patch/confirm/reject (admin-only; poll `get_proposal` while generating) |
 | Hive Mind | 3 | `ask_org_knowledge` — a cited answer from the content the CALLER can reach (assigned or shared with their groups), plus the ChatGPT Company Knowledge pair `search` / `fetch` over the same corpus. The one **learner-scoped** family here: never the workspace at large, never another workspace. Per-workspace on the `HIVE_MIND` org flag |
+| Compile | 1 | `compile_reference_page` — an org **admin** asks for a reference page and a model writes it into the cell with a pin, a banner, an origin stamp and a citable chunk. **Admin-only and it spends a whole-document draw**, so it is rate-limited separately from ask (10/hour on this surface) and refuses rather than double-charging when one is already in flight. Same `HIVE_MIND` org flag |
 
-> Counts are asserted in `core/modules/mcp_oauth/tests/test_workspace_mcp_surface.py`
-> (`EXPECTED_TOOL_COUNT`) — if you add/remove a tool, that test fails until both
-> the count there and this table are updated together.
+> The **heading** count is asserted in
+> `core/modules/mcp_oauth/tests/test_workspace_mcp_surface.py` (`EXPECTED_TOOL_COUNT`),
+> and `28a7cd0cba` proved that guard real: it added a tool without touching that test,
+> and the branch sat red from 2026-09-05 until 2026-09-07.
+>
+> **The per-domain counts in this table are NOT asserted by anything, and an earlier
+> version of this note said they were.** They sum to **88** against a surface of **90**
+> — a discrepancy of two that predates the compile row and that nothing has ever
+> caught. Do not read the table as authoritative; read `list_tools()`. Attributing the
+> missing two needs a per-family audit nobody has run, and inventing numbers to make
+> the arithmetic close would be worse than recording that it does not.
 
 ## Install
 
@@ -119,10 +128,10 @@ Claude Code opens a browser for the OAuth flow automatically.
 ## Current distribution status
 
 - **Claude production connector:** `https://mcp.beeline.life/mcp`. The Claude
-  plugin format remains Claude-specific and keeps the full 89-tool workspace
+  plugin format remains Claude-specific and keeps the full 90-tool workspace
   surface.
-- **ChatGPT / OpenAI plugin:** `https://mcp.beeline.life/chatgpt/mcp` (**97 tools** —
-  full 89-tool Workspace surface under OAuth plus 8 guest Build tools).
+- **ChatGPT / OpenAI plugin:** `https://mcp.beeline.life/chatgpt/mcp` (**98 tools** —
+  full 90-tool Workspace surface under OAuth plus 8 guest Build tools).
   Same seven skills ship as Skills + MCP via
   [`../openai-plugin/`](../openai-plugin/) (synced from this `skills/` tree —
   edit here, then `scripts/sync-openai-plugin-skills.sh`). Runtime also exposes
