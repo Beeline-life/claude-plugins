@@ -30,7 +30,7 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 - **Three commands** — `/beeline-workspace:beeline-status`,
   `/beeline-workspace:beeline-new`, `/beeline-workspace:beeline-roles`.
 
-## Tool surface (90 tools across 10 domains)
+## Tool surface (93 tools across 11 domains)
 
 | Domain | Count | Covers |
 |---|---|---|
@@ -41,8 +41,9 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 | Roles | 2 | `list_job_roles` / `get_job_role` — dual-mode KPIs (metric/scale/both), competencies, standards |
 | Gap diagnosis | 1 | `diagnose_gaps` — fused five-signal WHY (role requirements, exact failed questions, decay, capability targets, manager KPI ratings) per learner / group subtree / org, with per-signal status honesty |
 | Workspace | 2 | List connectable workspaces; link-completed switching (signed browser link → confirm → re-auth with target pre-selected; docs/mcp-workspace-switching/spec.md) |
-| Proposals | 5 | Role Pack create/get/patch/confirm/reject (admin-only; poll `get_proposal` while generating) |
+| Proposals | 5 | Role Pack create/get/patch/confirm/reject (admin-only; poll `get_proposal` while generating). `confirm_proposal` / `reject_proposal` also take a **Zeno action** (a change Zeno prepared): an admin, or a manager whose places cover it, may confirm it, and it runs as the confirmer |
 | Hive Mind | 3 | `ask_org_knowledge` — a cited answer from the content the CALLER can reach (assigned or shared with their groups), plus the ChatGPT Company Knowledge pair `search` / `fetch` over the same corpus. The one **learner-scoped** family here: never the workspace at large, never another workspace. Per-workspace on the `HIVE_MIND` org flag |
+| Signals | 3 | `list_signals` / `dismiss_signal` — what Zeno noticed: live gap signals per place or org from the daily detector, scoped to the caller's managed places for a manager; a dismissed signal comes back by itself if the gap grows by half or after 30 days. `conductor_preview` — "Fix it": the next best cell for a signal's place as a proposal with a one-sentence why; nothing is assigned until `confirm_proposal` |
 | Compile | 1 | `compile_reference_page` — an org **admin** asks for a reference page and a model writes it into the cell with a pin, a banner, an origin stamp and a citable chunk. **Admin-only and it spends a whole-document draw**, so it is rate-limited separately from ask (10/hour on this surface) and refuses rather than double-charging when one is already in flight. Same `HIVE_MIND` org flag |
 
 > The **heading** count is asserted in
@@ -51,7 +52,7 @@ Customer-facing setup guide: [Connect an AI assistant to your Beeline workspace]
 > and the branch sat red from 2026-09-05 until 2026-09-07.
 >
 > **The per-domain counts in this table are NOT asserted by anything, and an earlier
-> version of this note said they were.** They sum to **88** against a surface of **90**
+> version of this note said they were.** They sum to **91** against a surface of **93**
 > — a discrepancy of two that predates the compile row and that nothing has ever
 > caught. Do not read the table as authoritative; read `list_tools()`. Attributing the
 > missing two needs a per-family audit nobody has run, and inventing numbers to make
@@ -128,7 +129,7 @@ Claude Code opens a browser for the OAuth flow automatically.
 ## Current distribution status
 
 - **Claude production connector:** `https://mcp.beeline.life/mcp`. The Claude
-  plugin format remains Claude-specific and keeps the full 90-tool workspace
+  plugin format remains Claude-specific and keeps the full 93-tool workspace
   surface.
 - **ChatGPT / OpenAI plugin:** `https://mcp.beeline.life/chatgpt/mcp` (**98 tools** —
   full 90-tool Workspace surface under OAuth plus 8 guest Build tools).

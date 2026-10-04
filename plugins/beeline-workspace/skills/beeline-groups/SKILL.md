@@ -5,7 +5,7 @@ description: "Use when the user wants to change their org's group or hierarchy s
 
 # Beeline Groups
 
-Groups model an org's structure — locations, regions, teams, roles — as a tree, max 5 levels deep. Every structural tool here is preview-then-confirm: call once without `confirm` to see exactly what would happen (zero writes), then call again with `confirm=True` to actually do it. Never skip the preview step, and always show the preview to the user before confirming unless they've explicitly said to just do it.
+Groups model an org's structure — locations, regions, teams, roles — as a tree, max 9 levels deep, under one whole-company group per org. Every structural tool here is preview-then-confirm: call once without `confirm` to see exactly what would happen (zero writes), then call again with `confirm=True` to actually do it. Never skip the preview step, and always show the preview to the user before confirming unless they've explicitly said to just do it.
 
 ## Auth model — know who can do what
 
